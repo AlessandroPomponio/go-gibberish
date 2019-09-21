@@ -65,7 +65,7 @@ func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outp
 	// http://squarecog.wordpress.com/2009/01/10/dealing-with-underflow-in-joint-probability-calculations/
 	normalizeOccurrencesMatrix(occurrences)
 
-	// Find the probability of generating a few arbitrarily choosen good and bad phrases.
+	// Find the probability of generating a few arbitrarily chosen good and bad phrases.
 	goodProbabilities := averageTransitionProbabilitiesInFile(goodFileName, occurrences, position)
 	badProbabilities := averageTransitionProbabilitiesInFile(badFileName, occurrences, position)
 
