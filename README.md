@@ -1,5 +1,6 @@
 # Go gibberish
 
+[![Build Status](https://travis-ci.org/AlessandroPomponio/go-gibberish.svg?branch=master)](https://travis-ci.org/AlessandroPomponio/go-gibberish)
 [![Go Report Card](https://goreportcard.com/badge/github.com/AlessandroPomponio/go-gibberish)](https://goreportcard.com/report/github.com/AlessandroPomponio/go-gibberish)
 [![GoDoc](https://godoc.org/github.com/AlessandroPomponio/go-gibberish?status.svg)](https://godoc.org/github.com/AlessandroPomponio/go-gibberish)
 
