@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -23,12 +24,20 @@ func main() {
 	flag.Parse()
 
 	if performTraining {
-		training.TrainModel(consts.AcceptedCharacters, "big.txt", "good.txt", "bad.txt", "knowledge.json")
+		err := training.TrainModel(consts.AcceptedCharacters, "big.txt", "good.txt", "bad.txt", "knowledge.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		return
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-	data := persistence.LoadKnowledgeBase("knowledge.json")
+	data, err := persistence.LoadKnowledgeBase("knowledge.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for {
 
 		fmt.Print("Insert something to check: ")

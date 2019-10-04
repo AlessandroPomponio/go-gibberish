@@ -4,7 +4,7 @@ package training
 
 import (
 	"bufio"
-	"log"
+	"fmt"
 	"math"
 	"os"
 
@@ -15,7 +15,7 @@ import (
 
 // TrainModel computes the probabilities of having a certain
 // digraph by reading a big file.
-func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outputFileName string) {
+func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outputFileName string) error {
 
 	position := getRunePosition(acceptedChars)
 
@@ -27,7 +27,7 @@ func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outp
 
 	trainingFile, err := os.Open(trainingFileName)
 	if err != nil {
-		log.Fatalf("TrainModel: unable to open training file %s", trainingFileName)
+		return fmt.Errorf("TrainModel: unable to open training file %s", trainingFileName)
 	}
 
 	// Count the occurrences of rune pairs by reading a big file.
@@ -43,12 +43,12 @@ func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outp
 
 			firstPosition, firstRuneFound := position[pair.First]
 			if !firstRuneFound {
-				log.Fatalf("TrainModel: unable to find the position of the rune %s", string(pair.First))
+				return fmt.Errorf("TrainModel: unable to find the position of the rune %s", string(pair.First))
 			}
 
 			secondPosition, secondRuneFound := position[pair.Second]
 			if !secondRuneFound {
-				log.Fatalf("TrainModel: unable to find the position of the rune %s", string(pair.First))
+				return fmt.Errorf("TrainModel: unable to find the position of the rune %s", string(pair.First))
 			}
 
 			occurrences[firstPosition][secondPosition]++
@@ -66,15 +66,22 @@ func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outp
 	normalizeOccurrencesMatrix(occurrences)
 
 	// Find the probability of generating a few arbitrarily chosen good and bad phrases.
-	goodProbabilities := averageTransitionProbabilitiesInFile(goodFileName, occurrences, position)
-	badProbabilities := averageTransitionProbabilitiesInFile(badFileName, occurrences, position)
+	goodProbabilities, err := averageTransitionProbabilitiesInFile(goodFileName, occurrences, position)
+	if err != nil {
+		return fmt.Errorf("TrainModel: error when computing good probabilities: %s", err)
+	}
+
+	badProbabilities, err := averageTransitionProbabilitiesInFile(badFileName, occurrences, position)
+	if err != nil {
+		return fmt.Errorf("TrainModel: error when computing bad probabilities: %s", err)
+	}
 
 	minimumGoodProbability := analysis.MinForSlice(goodProbabilities)
 	maximumBadProbability := analysis.MaxForSlice(badProbabilities)
 
 	// Make sure we are actually capable of detecting the junk.
 	if minimumGoodProbability <= maximumBadProbability {
-		log.Fatal("minimumGoodProbability <= maximumBadProbability")
+		return fmt.Errorf("TrainModel: minimumGoodProbability <= maximumBadProbability")
 	}
 
 	// Pick a threshold halfway between the worst good and best bad inputs.
@@ -86,17 +93,18 @@ func TrainModel(acceptedChars, trainingFileName, goodFileName, badFileName, outp
 		Threshold:   threshold,
 	}
 
-	persistence.WriteKnowledgeBase(&data, outputFileName)
+	err = persistence.WriteKnowledgeBase(&data, outputFileName)
+	return err
 
 }
 
-func averageTransitionProbabilitiesInFile(fileName string, occurrences [][]float64, position map[rune]int) []float64 {
+func averageTransitionProbabilitiesInFile(fileName string, occurrences [][]float64, position map[rune]int) ([]float64, error) {
 
 	res := make([]float64, 0, 5)
 
 	file, err := os.Open(fileName)
 	if err != nil {
-		log.Fatalf("averageTransitionProbabilitiesInFile: unable to open file %s", fileName)
+		return nil, fmt.Errorf("averageTransitionProbabilitiesInFile: unable to open file %s", fileName)
 	}
 
 	fReader := bufio.NewReader(file)
@@ -107,12 +115,18 @@ func averageTransitionProbabilitiesInFile(fileName string, occurrences [][]float
 			break
 		}
 
-		res = append(res, analysis.AverageTransitionProbability(string(line), occurrences, position))
+		avgProb, err := analysis.AverageTransitionProbability(string(line), occurrences, position)
+		if err != nil {
+			break
+		}
+
+		res = append(res, avgProb)
 
 	}
-	_ = file.Close()
 
-	return res
+	_ = file.Close()
+	return res, err
+
 }
 
 func getRunePosition(characters string) map[rune]int {
