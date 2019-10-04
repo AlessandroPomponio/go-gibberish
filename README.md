@@ -1,5 +1,6 @@
 # Go gibberish
 
+[![Actions Status](https://github.com/AlessandroPomponio/go-gibberish/workflows/Go/badge.svg)](https://github.com/AlessandroPomponio/go-gibberish/actions)
 [![Build Status](https://travis-ci.org/AlessandroPomponio/go-gibberish.svg?branch=master)](https://travis-ci.org/AlessandroPomponio/go-gibberish)
 [![Go Report Card](https://goreportcard.com/badge/github.com/AlessandroPomponio/go-gibberish)](https://goreportcard.com/report/github.com/AlessandroPomponio/go-gibberish)
 [![GoDoc](https://godoc.org/github.com/AlessandroPomponio/go-gibberish?status.svg)](https://godoc.org/github.com/AlessandroPomponio/go-gibberish)
@@ -28,6 +29,7 @@ Run the training for the model by calling the function `training.TrainModel` and
 In case you decide to us
 
 ```go
+
     var (
         performTraining bool
     )
