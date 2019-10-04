@@ -10,5 +10,6 @@ import (
 // IsGibberish returns true if the input string is likely
 // to be gibberish
 func IsGibberish(input string, data *structs.GibberishData) bool {
-	return analysis.AverageTransitionProbability(input, data.Occurrences, data.Positions) <= data.Threshold
+	value, err := analysis.AverageTransitionProbability(input, data.Occurrences, data.Positions)
+	return value <= data.Threshold && err == nil
 }

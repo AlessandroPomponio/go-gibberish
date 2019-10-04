@@ -3,7 +3,7 @@
 package analysis
 
 import (
-	"log"
+	"fmt"
 	"math"
 	"strings"
 
@@ -14,7 +14,7 @@ import (
 // AverageTransitionProbability returns the probability of
 // generating the input string digraph by digraph according
 // to the occurrences matrix.
-func AverageTransitionProbability(line string, occurrences [][]float64, position map[rune]int) float64 {
+func AverageTransitionProbability(line string, occurrences [][]float64, position map[rune]int) (float64, error) {
 
 	logProb := 0.0
 	transitionCt := 0.0
@@ -23,12 +23,12 @@ func AverageTransitionProbability(line string, occurrences [][]float64, position
 
 		firstPosition, firstRuneFound := position[pair.First]
 		if !firstRuneFound {
-			log.Fatalf("AverageTransitionProbability: unable to find the position of the rune %s", string(pair.First))
+			return -1, fmt.Errorf("AverageTransitionProbability: unable to find the position of the rune %s", string(pair.First))
 		}
 
 		secondPosition, secondRuneFound := position[pair.Second]
 		if !secondRuneFound {
-			log.Fatalf("AverageTransitionProbability: unable to find the position of the rune %s", string(pair.First))
+			return -1, fmt.Errorf("AverageTransitionProbability: unable to find the position of the rune %s", string(pair.First))
 		}
 
 		logProb += occurrences[firstPosition][secondPosition]
@@ -40,7 +40,7 @@ func AverageTransitionProbability(line string, occurrences [][]float64, position
 		transitionCt = 1
 	}
 
-	return math.Exp(logProb / transitionCt)
+	return math.Exp(logProb / transitionCt), nil
 
 }
 
